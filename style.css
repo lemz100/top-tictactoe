@@ -1,0 +1,39 @@
+:root {
+    font-size: 16px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+#page-title {
+    text-align: center;
+}
+
+.turn {
+    place-self: center;
+    border: 1px solid green;
+    padding: 1rem;
+}
+
+.board {
+    place-self: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    width: 360px;
+    height: 360px;
+}
+
+.cell {
+    background: none;
+    border: 1px solid black;
+    font-size: 4rem
+}
+
+.winner-p {
+    place-self: center;
+    text-align: center;
+    font-size: 2rem;
+    background-color: azure;
+    width: 360px;
+}
