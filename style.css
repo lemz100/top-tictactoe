@@ -5,14 +5,25 @@
     padding: 0;
 }
 
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+#start-gamebtn {
+    place-self: center;
+}
+
 #page-title {
     text-align: center;
 }
 
 .turn {
     place-self: center;
+    text-align: center;
     border: 1px solid green;
     padding: 1rem;
+    width: 360px;
 }
 
 .board {
@@ -25,12 +36,13 @@
 }
 
 .cell {
-    background: none;
+    background-color: rgb(238, 238, 238);
+    border-radius: 5px;
     border: 1px solid black;
     font-size: 4rem
 }
 
-.winner-p {
+.game-status {
     place-self: center;
     text-align: center;
     font-size: 2rem;

@@ -14,12 +14,6 @@ function Gameboard () {
     // Gets the board
     const getBoard = () => board;
 
-    // Prints board for console logging
-    const printBoard = () => {
-        const boardWithValues = board.map((row) => row.map((cell) => cell.getMark()));
-        console.log(boardWithValues);
-    };
-
     // Adds mark (X or O in row & column)
     const markCell = (row, column, player) => {
         let validMove; // Boolean variable to decide whether move gets replayed.
@@ -36,7 +30,7 @@ function Gameboard () {
         }
     };
 
-    return { getBoard, printBoard, markCell };
+    return { getBoard, markCell };
 }
 
 function Cell() {
@@ -83,13 +77,6 @@ function GameController(playerOneName = "Player 1", playerTwoName = "Player 2") 
 
     // Gets current active player
     const getActivePlayer = () => activePlayer;
-
-    // Prints new round.
-    const printNewRound = () => { 
-        board.printBoard();
-        console.log(`${getActivePlayer().name}'s turn`);
-    };
-
 
     // Checks win by row - if mark is consistent across a row = win.
     // Returns winning mark.
@@ -152,9 +139,7 @@ function GameController(playerOneName = "Player 1", playerTwoName = "Player 2") 
 
     // Main playing function.
     const playRound = (row, column) => {
-        console.log(`Marking '${getActivePlayer().mark}' into row ${row} and column ${column}`);
         const validMove = board.markCell(row, column, getActivePlayer().mark);
-
         if(!validMove){
             return; // If move is invalid, breaks function and user makes a next move.
         }
@@ -169,14 +154,11 @@ function GameController(playerOneName = "Player 1", playerTwoName = "Player 2") 
             const winnerMark = horizontalWinner || verticalWinner || diagonalWinner; // First non-null winner mark
             return `${winnerMark === "X" ? players[1].name : players[0].name} wins!`;
         } else if (checkTie()) {
-            return "Its a draw!";
+            return "Its a draw!"; // Checks if game hits a draw.
         }
 
         switchPlayerTurn();
-        printNewRound();
     };
-
-    printNewRound();
 
     return {
         changePlayerName,
@@ -186,18 +168,16 @@ function GameController(playerOneName = "Player 1", playerTwoName = "Player 2") 
     };
 }
 
-function UserInterface() {
-    const game = GameController();
+function UserInterface(game) {
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
-    const winnerMessage = document.querySelector('.winner-p');
+    const gameStatus = document.querySelector('.game-status');
 
     // Refresh screen
     const updateScreen = () => {
         // Clear the board
         boardDiv.textContent = "";
         
-
         // Get newest version of board and player's turn.
         const board = game.getBoard();
         const activePlayer = game.getActivePlayer();
@@ -210,8 +190,8 @@ function UserInterface() {
             row.forEach((cell, colIndex) => {
                 const cellButton = document.createElement('button');
                 cellButton.classList.add("cell");
-                cellButton.dataset.column = colIndex;
-                cellButton.dataset.row = rowIndex; // Here's the key part
+                cellButton.dataset.column = colIndex; // Applies column index to the cell
+                cellButton.dataset.row = rowIndex; // Applies row index to the cell
                 cellButton.textContent = cell.getMark();
                 boardDiv.append(cellButton);
             });
@@ -219,30 +199,56 @@ function UserInterface() {
 
     }
 
+    // Board reset method
     const resetBoard = () => {
-        playerTurnDiv.textContent = "Game over! Click to start again.";
+        // Game over message.
+        playerTurnDiv.textContent = "Game over!";
+        // Removes click function from cells to prevent further interaction with board.
         boardDiv.removeEventListener("click", clickHandlerBoard);
-    
-        // Add a single click handler to reset on playerTurnDiv
-        playerTurnDiv.addEventListener("click", () => location.reload(), { once: true });
     }
+
+    // Resets game status message
+    if(gameStatus.textContent!== ""){
+        gameStatus.textContent = "";
+    }
+
     // Event listener for the board
     function clickHandlerBoard(e) {
-        const selectedColumn = e.target.dataset.column;
-        const selectedRow = e.target.dataset.row;
-        if(!selectedColumn || !selectedRow) return;
+        const selectedColumn = e.target.dataset.column; // Selects column using button column dataset
+        const selectedRow = e.target.dataset.row; // Selects row using button row dataset.
+        if(!selectedColumn || !selectedRow) return; // Returns if invalid/no selection.
         const result = game.playRound(selectedRow, selectedColumn);
+        // Screen refresh
         updateScreen();
 
+        // Game Status displays result of the game based on its return value.
         if(result) {
-            winnerMessage.textContent = result;
+            gameStatus.textContent = result;
             resetBoard();
         }
     }
         
-        boardDiv.addEventListener("click", clickHandlerBoard);
-        // Initial render
-        updateScreen();
+    boardDiv.addEventListener("click", clickHandlerBoard);
+    // Initial render
+    updateScreen();
 }
-UserInterface();
+
+// Game start up
+const startButton = document.querySelector("#start-gamebtn");
+
+// Start button to start up the game from the button.
+startButton.addEventListener("click", () => {
+    // Prompts to enter desired user names.
+    const player1Name = prompt("Enter Player 1 name: ") || "Player 1";
+    const player2Name = prompt("Enter Player 2 name: ") || "Player 2";
+
+    // Instantializes game variable and changes player names
+    const game = GameController();
+    game.changePlayerName(0, player1Name);
+    game.changePlayerName(1, player2Name);
+
+    // Starts up user interface with game variable.
+    UserInterface(game);
+})
+
 
